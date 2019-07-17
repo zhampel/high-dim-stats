@@ -1,3 +1,7 @@
+
+# Save no figures unless specified
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
