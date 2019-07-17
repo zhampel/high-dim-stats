@@ -66,8 +66,6 @@ def main():
     hist, edges = np.histogram(evals, bins=edges)
 
     # Scale by max value
-    #sum_hist = np.sum(hist)
-    #hist = hist / np.float(sum_hist)
     max_hist = np.max(hist)
     hist = hist / np.float(max_hist)
 
@@ -75,16 +73,24 @@ def main():
     fmp, gamma_fine = f_marcpastur(alpha=alpha)
     fmp /= np.max(fmp)
 
+    # Plot and save figure of empirical + theory distributions
     figname = 'eighist_d%i_n%i.png'%(ndims, bsize)
     fig, ax = plt.subplots(figsize=(16,10))
-    ax.step(cents, hist, label='Empirical')
+    ax.fill_between(cents, hist, step='pre', alpha=0.5, label='Empirical')
+    ax.plot(cents, hist, drawstyle='steps')
     ax.plot(gamma_fine, fmp, '--r', label='Theory')
-    ax.set_xlabel(r'Eigenvalue, $\lambda(\hat{\Sigma})$', fontsize=18)
+    ax.set_xlabel(r'Eigenvalue $\lambda(\hat{\Sigma})$', fontsize=18)
     ax.set_ylabel('Scaled Density', fontsize=18)
-    ax.set_title(r'Eigenvalues $(\alpha = %.02f = d/n = %i/%i)$'%(alpha,ndims,bsize), fontsize=24)
+    ax.set_title(r'Eigenvalues of Sample Covariance Matrix with $\alpha = %.02f$'%(alpha), fontsize=24)
+
+    # Data details in text box
+    textstr = '$x_j \in \mathcal{N}(0,\mathbf{I}^d)$, $j\in [1,n]$ \n$d=%i$\n$n=%i$\n$ \\alpha=d/n$'%(ndims, bsize)
+    props = dict(boxstyle='round', facecolor='wheat', alpha=0.75)
+    ax.text(0.85, 0.8875, r'%s'%textstr, transform=ax.transAxes, fontsize=14, verticalalignment='top', bbox=props)
+
     ax.grid()
     #plt.yscale('log')
-    plt.legend(loc='upper right', numpoints=1, fontsize=16)
+    plt.legend(loc='upper right', numpoints=1, fontsize=16, framealpha=1.0)
     plt.tight_layout()
     fig.savefig(figname)
     print(figname)
