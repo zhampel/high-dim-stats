@@ -11,7 +11,6 @@ def gaussian(x, mu, sig):
     """
     Gaussian function
     """
-    #return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.))) / np.sqrt(2*np.pi) / sig
     return np.exp(-np.power(x - mu, 2.) / (2 * np.power(sig, 2.)))
 
 
@@ -70,31 +69,49 @@ def plot_corr(corr=None, figname='', title='', comp_hist=None):
 
 
 
-
+# Dataset definitions
 dim = 50
 nblocks = int(dim/2)
-mean = np.zeros(dim)#[0, 0, 0, 0]
+mean = np.zeros(dim)
 
-# Block covariance
-cov_block = [[1, 0.5], [0.5, 1]]
-#cov = np.kron(np.eye(nblocks), cov_block)
+# Covariance matrix defs
+sigma_val = 1.0
+off_diag = 0.5
+block_dim = 2
+
+# Ensure block dimensions are sensical relative to data dimensionality
+assert block_dim <= dim and dim % block_dim == 0, \
+       "Block dimensions not good: {}. Must be equal to dim {} or multiple of dim.".format(block_dim, dim)
+
+## Block covariance
+#cov_block = [[1, 0.5], [0.5, 1]]
+##cov = np.kron(np.eye(nblocks), cov_block)
+#cov = block_diag(*([cov_block] * nblocks))
+        
+# Just elements adjacent to diag
+if (block_dim == -1):
+    cov_block = np.eye(dim, dim, 1) + np.eye(dim, dim, -1)
+    cov_block *= off_diag
+    cov_block[np.eye(dim, dtype=bool)] = sigma_val
+    nblocks = 1
+# Block diag structure
+else:
+    cov_block = off_diag*np.ones((block_dim, block_dim))
+    cov_block[np.eye(cov_block.shape[0], dtype=bool)] = sigma_val
+    nblocks = int(dim/block_dim)
+        
 cov = block_diag(*([cov_block] * nblocks))
 
-# Equal covariance for all vars
-#cov = 0.25*np.ones((dim, dim))
-#cov[np.eye(cov.shape[0], dtype=bool)] = 1.0
 
-#x, y = np.random.multivariate_normal(mean, cov, 1000).T
 x = np.random.multivariate_normal(mean, cov, 1000)
 print(x.shape)
 fig = plt.figure(figsize=(9,6))
 mpl.rc("font", family="serif")
 ax = fig.add_subplot(111)
 
-#ax.plot(x, y, 'x')
 ax.plot(x[:,0], x[:,1], 'x')
 ax.axis('equal')
 plt.show()
 
 test_corr = np.corrcoef(x, rowvar=False)
-test_corr_hist, test_fit_sigma = plot_corr(test_corr, 'poop.png', title='$X^{t}$ Correlation')
+test_corr_hist, test_fit_sigma = plot_corr(test_corr, 'test_corr.png', title='$X^{t}$ Correlation')
