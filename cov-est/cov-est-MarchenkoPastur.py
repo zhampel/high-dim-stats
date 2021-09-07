@@ -74,7 +74,8 @@ def main():
     fmp /= np.max(fmp)
 
     # Plot and save figure of empirical + theory distributions
-    figname = 'eighist_d%i_n%i.png'%(ndims, bsize)
+    #figname = 'eighhist_{val:0{n_zeros}.3f}'.format(n_zeros=8,val=3.14)
+    figname = 'eighist_d%05i_n%08i.png'%(ndims, bsize)
     fig, ax = plt.subplots(figsize=(16,10))
     ax.fill_between(cents, hist, step='pre', alpha=0.5, label='Empirical')
     ax.plot(cents, hist, drawstyle='steps')
